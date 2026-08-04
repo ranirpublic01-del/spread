@@ -283,15 +283,15 @@
   <div class="summary">
     <div class="summary-cell in">
       <div class="s-label">Total Pemasukan</div>
-      <div class="s-value" id="sum-in">Rp 0.000.000</div>
+      <div class="s-value" id="sum-in">Rp 0</div>
     </div>
     <div class="summary-cell out">
       <div class="s-label">Total Pengeluaran</div>
-      <div class="s-value" id="sum-out">Rp 0.000.000</div>
+      <div class="s-value" id="sum-out">Rp 0</div>
     </div>
     <div class="summary-cell net">
       <div class="s-label">Sisa Uang</div>
-      <div class="s-value" id="sum-net">Rp 0.000.000</div>
+      <div class="s-value" id="sum-net">Rp 0</div>
     </div>
   </div>
 
@@ -362,7 +362,7 @@ const rupiah = (n) => new Intl.NumberFormat('id-ID', {
   style: 'currency', currency: 'IDR', maximumFractionDigits: 0
 }).format(n || 0);
 
-function animateNumber(elementId, targetValue, duration = 800) {
+function animateNumber(elementId, targetValue, duration = 1800) {
   const el = document.getElementById(elementId);
   if (!el) return;
   const startTime = performance.now();
@@ -371,10 +371,14 @@ function animateNumber(elementId, targetValue, duration = 800) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // Random effect during the animation phase
+    // Ease out expo for smooth slowing down effect
+    const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
     if (progress < 1) {
-      const randomVal = Math.floor(Math.random() * targetValue * 1.5);
-      el.textContent = rupiah(randomVal);
+      // Random number generation that narrows down as it approaches targetValue
+      const randomRange = targetValue * (1 - easeProgress);
+      const randomVal = Math.floor(targetValue + (Math.random() * 2 - 1) * randomRange);
+      el.textContent = rupiah(Math.max(0, randomVal));
       requestAnimationFrame(update);
     } else {
       el.textContent = rupiah(targetValue);
@@ -545,9 +549,9 @@ async function loadData(){
     console.error(err);
   }
 
-  animateNumber('sum-in', inTotal, 1000);
-  animateNumber('sum-out', outTotal, 1000);
-  animateNumber('sum-net', inTotal - outTotal, 1000);
+  animateNumber('sum-in', inTotal, 1800);
+  animateNumber('sum-out', outTotal, 1800);
+  animateNumber('sum-net', inTotal - outTotal, 1800);
 
   statusEl.textContent = 'tersambung · live';
   const now = new Date();
