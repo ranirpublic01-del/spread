@@ -276,7 +276,7 @@
 
   <div class="title-block">
     <div class="eyebrow">Catatan Belanja Acara</div>
-    <h1>Pengeluaran <em>Perpisahan.</em></h1>
+    <h1>Perpisahan <em>Mandalish</em></h1>
     <p class="sub">Website ini digunakan untuk melaporkan pengeluaran dan pemasukan dana perpisahan Mandalish secara realtime. Setiap data yang dimasukkan akan ter-update secara otomatis setiap 20 detik.</p>
   </div>
 
@@ -361,6 +361,28 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx
 const rupiah = (n) => new Intl.NumberFormat('id-ID', {
   style: 'currency', currency: 'IDR', maximumFractionDigits: 0
 }).format(n || 0);
+
+function animateNumber(elementId, targetValue, duration = 800) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const startTime = performance.now();
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Random effect during the animation phase
+    if (progress < 1) {
+      const randomVal = Math.floor(Math.random() * targetValue * 1.5);
+      el.textContent = rupiah(randomVal);
+      requestAnimationFrame(update);
+    } else {
+      el.textContent = rupiah(targetValue);
+    }
+  }
+
+  requestAnimationFrame(update);
+}
 
 function parseGviz(text){
   const start = text.indexOf('(');
@@ -523,9 +545,9 @@ async function loadData(){
     console.error(err);
   }
 
-  document.getElementById('sum-in').textContent = rupiah(inTotal);
-  document.getElementById('sum-out').textContent = rupiah(outTotal);
-  document.getElementById('sum-net').textContent = rupiah(inTotal - outTotal);
+  animateNumber('sum-in', inTotal, 1000);
+  animateNumber('sum-out', outTotal, 1000);
+  animateNumber('sum-net', inTotal - outTotal, 1000);
 
   statusEl.textContent = 'tersambung · live';
   const now = new Date();
